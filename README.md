@@ -12,7 +12,19 @@ Player 1 runs a game in a canvas in their browser. Other players join by using a
 
 Latency for the remote players could be an issue.
 
-# Server Setup
+# Client-side Setup
+
+Put a copy of `webremoteplay.js` in the same folder as your HTML, then add this to your HTML:
+```
+<script type="text/javascript" src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+<script type="text/javascript" src="webremoteplay.js"></script>
+```
+
+You also need to have exactly one canvas with `id="canvas"` so that webremoteplay knows which thing to stream to the remote players.
+
+See the included `index.html` demo for reference.
+
+# Servers?
 
 WebRTC works peer-to-peer but it still needs 3 servers to work properly. For small projects you can usually use someone else's servers for this, but for your own large scale projects you'll need your own.
 
