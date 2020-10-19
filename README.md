@@ -45,17 +45,17 @@ See the included `index.html` demo for reference.
 
 WebRTC works peer-to-peer but it still needs 3 servers to work properly. For small projects you can usually use someone else's servers for this, but for your own large scale projects you'll need your own.
 
-- _STUN_: used to discover network routes between WebRTC peers.
-- _TURN_: used to route traffic between peers behind restrictive NAT routers.
-- _Signalling_: used to find the specific peers you're hoping to contact.
+- **STUN**: used to discover network routes between WebRTC peers.
+- **TURN**: used to route traffic between peers behind restrictive NAT routers.
+- **Signalling**: used to find the specific peers you're hoping to contact.
 
-There are some well known freely available _STUN_ servers. Very little traffic goes through these so some folks generously leave these open for general use.
+There are some well known freely available **STUN** servers. Very little traffic goes through these so some folks generously leave these open for general use.
 
-_TURN_ servers are harder to come by, because they need to be able to route all the traffic between peers that are behind restrictive networks. If you find that some peers are unable to connect with each other, you might need a TURN server, however, for many peers this isn't needed at all.
+**TURN** servers are harder to come by, because they need to be able to route all the traffic between peers that are behind restrictive networks. If you find that some peers are unable to connect with each other, you might need a TURN server, however, for many peers this isn't needed at all.
 
-If you do need to run your own _STUN_ or _TURN_ server, I hear that [coturn](https://github.com/coturn/coturn) is a good choice for both.
+If you do need to run your own **STUN** or **TURN** server, I hear that [coturn](https://github.com/coturn/coturn) is a good choice for both.
 
-This project uses [PeerJS](https://peerjs.com) for the _Signalling_ server, and the client-side logic for talking to peers.
+This project uses [PeerJS](https://peerjs.com) for the **Signalling** server, and the client-side logic for talking to peers.
 
 ## Setting up your own PeerJS server
 
