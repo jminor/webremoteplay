@@ -8,6 +8,16 @@ Some games support local multiplayer via keyboard, multiple gamepads, etc. but o
 
 This is just a proof-of-concept. Hopefully it gives you an idea of how this could work.
 
+# Working Demo
+
+- Start here: http://pixelverse.org/experiments/webremoteplay/
+- Click the text to start a demo game (just a input checker diagnostic at the moment).
+- Notice that the URL changed to include an ID number. (Example: http://pixelverse.org/experiments/webremoteplay/#68IT4AJH1B )
+- Copy that URL.
+- Open a new browser window (even on a different computer).
+- Paste the URL, but change the `#` into a `?` (Example: http://pixelverse.org/experiments/webremoteplay/?68IT4AJH1B )
+- Now press keys, or click the mouse in either window, and you should see the same thing in both windows.
+
 # How Does This Work?
 
 Player 1 runs a game in their browser. Other players join by using a shared URL. Video and audio from the game is streamed to the other players over the network. Keyboard, mouse and gamepad inputs from all the players are routed to the game running in Player 1's browser.
