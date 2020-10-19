@@ -8,6 +8,14 @@ Some games support local multiplayer via keyboard, multiple gamepads, etc. but o
 
 This is just a proof-of-concept. Hopefully it gives you an idea of how this could work.
 
+Here are key features that are missing:
+- Audio support
+- More than 2 players
+- Gamepad support
+- Controller remapping (e.g. assign your keyboard to player 2, 3, 4, etc.)
+- Mouse move events
+- Host and clients should all use the same URL (see # vs ? details below)
+
 # Working Demo
 
 - Start here: http://pixelverse.org/experiments/webremoteplay/
