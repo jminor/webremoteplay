@@ -10,39 +10,32 @@
 // - TIC-80 receives all inputs from all players, thinking they are all local.
 // - Controller remapping?
 
-// Server Setup:
-//
-// ssh your-cloud-host (I recommend Oracle Cloud VM over Amazon EC2)
-// mkdir peerjs
-// cd peerjs
-// sudo npm install peer -g
-// sudo iptables -I INPUT 5 -i ens3 -p tcp --dport 9001 -m state --state NEW,ESTABLISHED -j ACCEPT
-// peerjs --port 9001 --key peerjs --path /multiplay
-
 'use strict';
 
 const verbose = true;
 const canvas = document.querySelector('canvas');
 const video = document.querySelector('video');
-// const gameFrame = document.getElementById('game-frame');
+const gameframe = document.getElementById('game-frame');
 
 const servers = { 
     "iceServers": [
-        { "url": "stun:stun.1.google.com:19302" }
-        // { "url": "turn:meet-jit-si-turnrelay.jitsi.net:443" },
-        // { "url": "stun:meet-jit-si-turnrelay.jitsi.net:443" },
-        // { "url": "turns:meet-jit-si-turnrelay.jitsi.net:443?transport=tcp" }
+        // thanks for this Google :)
+        // { "url": "stun:stun.1.google.com:19302" }
     ] 
 };
 
 var peerServer = {
     debug: 1, // 0=none, 1=errors, 2=warnings, 3=verbose
-    host: 'peer.pixelverse.org',
-    port: 9001,
-    path: '/multiplay',
-    key: 'multiplay'
+    // host: 'your-peerjs-server.example.com',
+    // port: 9001,
+    // path: '/remoteplay',
+    // key: 'remoteplay'
 };
-console.log("Connecting to PeerJS: ", peerServer.host, peerServer.port);
+if (peerServer.host) {
+    console.log("Connecting to PeerJS: ", peerServer.host, peerServer.port);
+}else{
+    console.log("Connecting to default PeerJS server.");
+}
 
 var connectionID = window.location.search.substring(1);
 var host_conn = null;
@@ -102,7 +95,7 @@ function connectAsClient(hostID) {
     console.log("CLIENT", me.id);
 
     canvas.remove();
-    gameFrame.remove();
+    gameframe.remove();
 
     me.on('open', function() {
         host_conn = me.connect(hostID, { reliable: true });
