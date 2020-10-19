@@ -2,15 +2,21 @@
 
 WebRTC-based Remote Play - play local multi-player games when you're not local.
 
+Some games support local multiplayer via keyboard, multiple gamepads, etc. but only if all the players are gathered around one computer and one screen. This project allows you to play these games with friends who are far away, sitting at a different computer.
+
 # Proof-of-concept
 
 This is just a proof-of-concept. Hopefully it gives you an idea of how this could work.
 
 # How Does This Work?
 
-Player 1 runs a game in a canvas in their browser. Other players join by using a shared URL. Video of the canvas is streamed to the other players. Keyboard, mouse and gamepad inputs from all the players are routed to the game running in Player 1's browser.
+Player 1 runs a game in their browser. Other players join by using a shared URL. Video and audio from the game is streamed to the other players over the network. Keyboard, mouse and gamepad inputs from all the players are routed to the game running in Player 1's browser.
 
-Latency for the remote players could be an issue.
+In more detail: the game itself runs in a canvas within a web page. Other players connect via PeerJS, which relies on WebRTC, a cross-platform and cross-browser networking mechanism. WebRTC support video streaming for video chats (similar to Zoom, Jitsi Meet, etc.) but this project uses it to stream only the game canvas & audio, not your whole screen. Web Remote Play uses WebRTC data channels to send keystrokes, mouse and gamepad events from all the other players back to the browser where the game is actually running.
+
+# How *Well* Does This Work?
+
+Latency for the remote players can be an issue. For fast-paced games you will notice this more, but for many games it won't matter and you'll never notice.
 
 # Client-side Setup
 
