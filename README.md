@@ -14,16 +14,15 @@ Here are key features that are missing:
 - Gamepad support
 - Controller remapping (e.g. assign your keyboard to player 2, 3, 4, etc.)
 - Mouse move events
-- Host and clients should all use the same URL (see # vs ? details below)
 
 # Working Demo
 
 - Start here: http://pixelverse.org/experiments/webremoteplay/
 - Click the text to start a demo game (just a input checker diagnostic at the moment).
-- Notice that the URL changed to include an ID number. (Example: http://pixelverse.org/experiments/webremoteplay/#68IT4AJH1B )
+- Notice that the URL changed to include an ID number.
 - Copy that URL.
 - Open a new browser window (even on a different computer).
-- Paste the URL, but change the `#` into a `?` (Example: http://pixelverse.org/experiments/webremoteplay/?68IT4AJH1B )
+- Paste the URL.
 - A video stream of the game should appear in the second browser window.
 - Now press keys, or click the mouse in *either* window, and you should see the same thing in both windows.
 

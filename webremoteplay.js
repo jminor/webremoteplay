@@ -43,6 +43,8 @@ var client_conn = null;
 var myID = null;
 var me = null;
 var call = null;
+var stream = null;
+var hosting = false;
 
 function sendEventToHost(event) {
     var eventType = event.type;
@@ -70,22 +72,7 @@ function sendEventToHost(event) {
 
 }
 
-function initialize() {
-    var newID = (Math.random().toString(36) + '0000000000000000000').substr(2, 10).toUpperCase();
-    me = new Peer(newID, peerServer);
-    me.on('open', function(id) {
-        if (me.id == null) {
-            // PeerJS examples do this stating that it is a
-            // "workaround for reconnect issue"?
-            me.id = myID;
-        }else{
-            myID = me.id;
-        }
-    });
-    me.on('error', function(err) {
-        console.log("ERROR:", err);
-    });
-
+// TODO: Do we need this somewhere?
     // Heroku HTTP routing timeout rule (https://devcenter.heroku.com/articles/websockets#timeouts) workaround
     // function ping() {
     //     console.log(me);
@@ -95,14 +82,38 @@ function initialize() {
     //     setTimeout(ping, 16000);
     // }
     // ping();
+
+function makeUniqueID() {
+    return (Math.random().toString(36) + '0000000000000000000').substr(2, 10).toUpperCase();
 }
 
 function connectAsClient(hostID) {
-    canvas.remove();
-    gameframe.remove();
+
+    var newID = makeUniqueID();
+
+    me = new Peer(newID, peerServer);
+
+    me.on('open', function(id) {
+        if (me.id == null) {
+            // PeerJS examples do this stating that it is a
+            // "workaround for reconnect issue"?
+            me.id = myID;
+        }else{
+            myID = me.id;
+        }
+    });
+
+    me.on('error', function(err) {
+        console.log("ERROR:", err);
+    });
 
     me.on('open', function() {
         console.log("CLIENT", me.id);
+
+        // canvas.style.display === "none";
+        // video.style.display === "block";
+        canvas.remove();
+        gameframe.remove();
 
         host_conn = me.connect(hostID, { reliable: true });
         host_conn.on('error', function(err) {
@@ -160,19 +171,56 @@ function connectAsClient(hostID) {
     });
 }
 
-function startHosting() {
+function startHosting(hostID) {
 
-    video.remove();
-    const stream = canvas.captureStream();
+    hosting = true;
+
+    if (hostID === undefined || hostID == null || hostID == "") {
+        hostID = makeUniqueID();
+    }
+
+    me = new Peer(hostID, peerServer);
+
+    me.on('open', function(id) {
+        if (me.id == null) {
+            // PeerJS examples do this stating that it is a
+            // "workaround for reconnect issue"?
+            me.id = myID;
+        }else{
+            myID = me.id;
+        }
+    });
+
+    me.on('error', function(err) {
+        // This is a really important part.
+        // If we failed to HOST because that ID was already taken, then
+        // it means we should connect as a client instead.
+        if (err.type == 'unavailable-id') {
+            console.log("Peer ID",hostID,"is taken, let's try connecting to it...");
+            hosting = false;
+            me.destroy();
+            me = null;
+            connectAsClient(hostID);
+        }else{
+            // Failed for some other reason...
+            console.log("ERROR:", err);
+        }
+    });
 
     me.on('open', function() {
         console.log("HOST open", myID);
-        window.location.hash = myID;
-        // if (window.history.replaceState) {
-        //     var url = new URL(window.location.href);
-        //     url.search = "?"+myID;
-        //     window.history.replaceState(url);
-        // }
+
+        // canvas.style.display === "block";
+        // video.style.display === "none";
+        video.remove();
+        stream = canvas.captureStream();
+
+        // window.location.hash = myID;
+        if (window.history.replaceState) {
+            var url = new URL(window.location.href);
+            url.search = "?"+myID;
+            window.history.replaceState(null, "", url);
+        }
     });
 
     me.on('connection', function(conn) {
@@ -237,24 +285,20 @@ function startHosting() {
     });
 
     me.on('disconnected', function () {
-        console.log('Connection to PeerJS server lost. Reconnecting...');
-        // Note: our peer connection(s) may still be fine, we just can't
-        // make new connections until we are reconnected to the PeerJS server.
-
-        // Workaround for peer.reconnect deleting previous id
-        me.id = myID;
-        me._lastServerId = myID;
-        me.reconnect();
+        if (hosting) {
+            console.log('Connection to PeerJS server lost. Reconnecting...');
+            // Note: our peer connection(s) may still be fine, we just can't
+            // make new connections until we are reconnected to the PeerJS server.
+            me.reconnect();
+        }
     });
 
     me.on('close', function() {
-        console.log('ERROR: Connection destroyed permanently. Reload the page to try again.');
+        if (hosting) {
+            console.log('ERROR: Connection destroyed permanently. Reload the page to try again.');
+        }
     });
 }
 
-initialize();
-if (connectionID) {
-    connectAsClient(connectionID);
-}else{
-    startHosting();
-}
+// First try hosting with the connectionID given...
+startHosting(connectionID);
