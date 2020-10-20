@@ -114,7 +114,8 @@ function connectAsClient(hostID) {
             document.addEventListener('keyup', sendEventToHost);
             document.addEventListener('mousedown', sendEventToHost);
             document.addEventListener('mouseup', sendEventToHost);
-            document.addEventListener('mousemove', sendEventToHost);
+            // TODO: mousemove events don't seem to dispatch properly?
+            // document.addEventListener('mousemove', sendEventToHost);
         });
         host_conn.on('data', function(data) {
             // Ignored
