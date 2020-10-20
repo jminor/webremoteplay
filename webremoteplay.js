@@ -74,7 +74,13 @@ function initialize() {
     var newID = (Math.random().toString(36) + '0000000000000000000').substr(2, 10).toUpperCase();
     me = new Peer(newID, peerServer);
     me.on('open', function(id) {
-        myID = id
+        if (me.id == null) {
+            // PeerJS examples do this stating that it is a
+            // "workaround for reconnect issue"?
+            me.id = myID;
+        }else{
+            myID = me.id;
+        }
     });
     me.on('error', function(err) {
         console.log("ERROR:", err);
@@ -92,12 +98,12 @@ function initialize() {
 }
 
 function connectAsClient(hostID) {
-    console.log("CLIENT", me.id);
-
     canvas.remove();
     gameframe.remove();
 
     me.on('open', function() {
+        console.log("CLIENT", me.id);
+
         host_conn = me.connect(hostID, { reliable: true });
         host_conn.on('error', function(err) {
             console.log("ERROR:", err);
@@ -110,7 +116,22 @@ function connectAsClient(hostID) {
             document.addEventListener('mouseup', sendEventToHost);
             document.addEventListener('mousemove', sendEventToHost);
         });
+        host_conn.on('data', function(data) {
+            // Ignored
+        })
+        host_conn.on('close', function() {
+            console.log("ERROR: Host connection closed.");
+        })
     });
+
+    me.on('connection', function(conn) {
+        // Disallow incoming connections
+        conn.on('open', function() {
+            conn.send("Incoming connections not allowed.");
+            setTimeout(function() { conn.close(); }, 500);
+        });
+    });
+
     me.on('call', function(call) {
         console.log("Got a call...");
         call.on('stream', function(remoteStream) {
@@ -120,6 +141,21 @@ function connectAsClient(hostID) {
         });
         // Respond, but provide no stream.
         call.answer();
+    });
+
+    me.on('disconnected', function () {
+        console.log('Connection to PeerJS server lost. Reconnecting...');
+        // Note: our peer connection(s) may still be fine, we just can't
+        // make new connections until we are reconnected to the PeerJS server.
+
+        // Workaround for peer.reconnect deleting previous id
+        me.id = myID;
+        me._lastServerId = myID;
+        me.reconnect();
+    });
+
+    me.on('close', function() {
+        console.log('ERROR: Connection destroyed permanently. Reload the page to try again.');
     });
 }
 
@@ -149,6 +185,7 @@ function startHosting() {
         client_conn.on('error', function(err) {
             console.log("ERROR:", err);
         });
+
         client_conn.on('close', function() {
             console.log("Client closed connection", client_conn.peer);
         });
@@ -158,6 +195,15 @@ function startHosting() {
             // Send them our video stream
             console.log("Calling", client_conn.peer, "with stream");
             call = me.call(client_conn.peer, stream);
+            call.on('stream', function(stream) {
+                // Ignored
+            });
+            call.on('close', function() {
+                console.log("ERROR: Incoming video stream closed.");
+            });
+            call.on('error', function(err) {
+                console.log("ERROR:", err);
+            });
         });
 
         client_conn.on('data', function(data) {
@@ -179,6 +225,29 @@ function startHosting() {
             }
             canvas.dispatchEvent(event);
         });
+    });
+
+    me.on('call', function(call) {
+        // Disallow incoming calls
+        // conn.on('open', function() {
+        //     conn.send("Incoming connections not allowed.");
+        //     setTimeout(function() { conn.close(); }, 500);
+        // });
+    });
+
+    me.on('disconnected', function () {
+        console.log('Connection to PeerJS server lost. Reconnecting...');
+        // Note: our peer connection(s) may still be fine, we just can't
+        // make new connections until we are reconnected to the PeerJS server.
+
+        // Workaround for peer.reconnect deleting previous id
+        me.id = myID;
+        me._lastServerId = myID;
+        me.reconnect();
+    });
+
+    me.on('close', function() {
+        console.log('ERROR: Connection destroyed permanently. Reload the page to try again.');
     });
 }
 
