@@ -58,7 +58,7 @@ function sendEventToHost(event) {
         case 'mousedown':
         case 'mouseup':
         case 'mousemove':
-            console.log(event);
+            // console.log(event);
             host_conn.send({
                 eventType: eventType,
                 button: event.button,
