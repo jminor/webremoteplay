@@ -1,0 +1,14 @@
+<html>
+<body>
+
+<!-- Sadly, this doesn't work, because we're not allowed to reach into a cross-origin iframe. -->
+
+<iframe class="webremoteplay_iframe" src="https://scratch.mit.edu/projects/439030700/embed" allowtransparency="true" width="485" height="402" frameborder="0" scrolling="no" allowfullscreen></iframe>
+
+<video playsinline autoplay muted style="width: 100%; height: 100%; margin: 0 auto; display: block; image-rendering: pixelated;" class="webremoteplay_video" oncontextmenu="event.preventDefault()" onmousedown="window.focus()"></video>
+
+<script type="text/javascript" src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+<script type="text/javascript" src="webremoteplay.js"></script>
+
+</body>
+</html>
