@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 -------------------
-Portions of the demo code included here are from TIC-80, which is available under the following license:
+TIC-80 fantasy console is available under the following license:
 
 MIT License
 
@@ -70,3 +70,10 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-------------------
+PICO-8, and the JELPI demo game are Copyright Lexaloffle Games and/or Joseph White (aka zep)
+
+Learn more about the amazing PICO-8 Fantasy Console here: https://www.lexaloffle.com/pico-8.php
+
+-------------------
