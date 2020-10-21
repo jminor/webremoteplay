@@ -10,7 +10,6 @@ This is just a proof-of-concept. Hopefully it gives you an idea of how this coul
 
 Here are key features that are missing:
 - Audio support
-- More than 2 players
 - Gamepad support
 - Controller remapping (e.g. assign your keyboard to player 2, 3, 4, etc.)
 - Mouse move events
@@ -25,6 +24,7 @@ Here are key features that are missing:
 - Paste the URL.
 - A video stream of the game should appear in the second browser window.
 - Now press keys, or click the mouse in *either* window, and you should see the same thing in both windows.
+- Open more browser windows with the same URL to add more players.
 
 # How Does This Work?
 

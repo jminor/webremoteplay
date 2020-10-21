@@ -19,13 +19,20 @@ const gameframe = document.getElementById('game-frame');
 
 const servers = { 
     "iceServers": [
-        // thanks for this Google :)
+        // Note: PeerJS provides some default STUN and/or TURN servers
+        // (Collectively ICE servers) so you probably don't need to
+        // put anything here.
+        // However, if that stops working someday, you can try this one from Google:
         // { "url": "stun:stun.1.google.com:19302" }
+        // or you can run your own (see for example https://github.com/coturn/coturn )
     ] 
 };
 
 var peerServer = {
     debug: 1, // 0=none, 1=errors, 2=warnings, 3=verbose
+    // Note: PeerJS provides a default signaling server, so you probably
+    // don't need to put anything here. However, if that stops working, or
+    // you want to run your own, then see https://github.com/peers/peerjs-server
     // host: 'your-peerjs-server.example.com',
     // port: 9001,
     // path: '/remoteplay',
@@ -39,7 +46,6 @@ if (peerServer.host) {
 
 var connectionID = window.location.search.substring(1);
 var host_conn = null;
-var client_conn = null;
 var myID = null;
 var me = null;
 var call = null;
@@ -84,7 +90,12 @@ function sendEventToHost(event) {
     // ping();
 
 function makeUniqueID() {
-    return (Math.random().toString(36) + '0000000000000000000').substr(2, 10).toUpperCase();
+    // Note: If you're using the default shared PeerJS signaling server,
+    // then these IDs could possibly conflict with some other project that
+    // also uses PeerJS, but if you're using your own PeerJS server, then
+    // you will only conflict with your own users, and could use a shorter ID.
+    const length = 6;
+    return (Math.floor(Math.random()*(36**length))).toString(36).toUpperCase();
 }
 
 function connectAsClient(hostID) {
@@ -104,7 +115,7 @@ function connectAsClient(hostID) {
     });
 
     me.on('error', function(err) {
-        console.log("ERROR:", err);
+        console.log("ERROR:", err.type, err);
     });
 
     me.on('open', function() {
@@ -192,9 +203,16 @@ function startHosting(hostID) {
     });
 
     me.on('error', function(err) {
+        // ********************************
         // This is a really important part.
+        //
         // If we failed to HOST because that ID was already taken, then
         // it means we should connect as a client instead.
+        // This fallback is what allows both the host and the client to
+        // use the same URL. Everyone using that URL first attempts to
+        // host, but only the 1st browser will succeed. The rest will fall
+        // back to being clients.
+        // ********************************
         if (err.type == 'unavailable-id') {
             console.log("Peer ID",hostID,"is taken, let's try connecting to it...");
             hosting = false;
@@ -225,25 +243,26 @@ function startHosting(hostID) {
 
     me.on('connection', function(conn) {
         console.log("Incoming connection...", conn.peer);
-        if (client_conn) {
-            client_conn.close();
-        }
 
-        client_conn = conn;
+        // Note that we don't need to hold onto the connection here.
+        // All we're going to do is call them back with the video
+        // stream (see `me.call` below). We don't need to send them
+        // any messages or anything.
 
-        client_conn.on('error', function(err) {
+        conn.on('error', function(err) {
             console.log("ERROR:", err);
         });
 
-        client_conn.on('close', function() {
-            console.log("Client closed connection", client_conn.peer);
+        conn.on('close', function() {
+            console.log("Client closed connection", conn.peer);
         });
 
-        client_conn.on('open', function() {
-            console.log("Connected:", client_conn.peer);
+        conn.on('open', function() {
+            console.log("Connected:", conn.peer);
+
             // Send them our video stream
-            console.log("Calling", client_conn.peer, "with stream");
-            call = me.call(client_conn.peer, stream);
+            console.log("Calling", conn.peer, "with stream");
+            call = me.call(conn.peer, stream);
             call.on('stream', function(stream) {
                 // Ignored
             });
@@ -255,7 +274,7 @@ function startHosting(hostID) {
             });
         });
 
-        client_conn.on('data', function(data) {
+        conn.on('data', function(data) {
             // console.log(data);
             var event = null;
             switch(data.eventType) {
