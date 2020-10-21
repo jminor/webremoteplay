@@ -8,11 +8,11 @@
 function startRemotePlay() {
 
     const verbose = true;
-    const canvas = document.querySelector('#canvas');
-    const video = document.querySelector('#video');
-    var gameframe = document.querySelector('#game-frame');
-    if (!gameframe) {
-        gameframe = document.querySelector('#p8_frame');
+    const video = document.querySelector('.webremoteplay_video');
+    const iframe = document.querySelector('.webremoteplay_iframe');
+    var canvas = document.querySelector('.webremoteplay_canvas');
+    if (!canvas && iframe) {
+        canvas = iframe.contentWindow.document.getElementsByTagName("canvas")[0];
     }
 
     const servers = {
@@ -122,9 +122,10 @@ function startRemotePlay() {
             // canvas.style.display === "none";
             // video.style.display === "block";
             canvas.remove();
-            if (gameframe) {
-                gameframe.remove();
-            }
+            var els = document.getElementsByClassName("webremoteplay_hostonly");
+            Array.prototype.forEach.call(els, function(el) {
+                el.remove();
+            });
 
             host_conn = me.connect(hostID, { reliable: true });
             host_conn.on('error', function(err) {
