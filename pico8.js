@@ -1126,6 +1126,9 @@ var ASM_CONSTS = [ function() {
      for (var j = 0; j < data.length; j++) data[j] = Module.getValue(ptr + j * 2, "i16") / 32768;
     };
     node.connect(codo_audio_context.destination);
+    // NOTE: WebRemotePlay needs to get this node in order
+    // to route the audio into a WebRTC stream.
+    codo_audio_context.final_audio_node=node;
    } else {
     log("** failed to create codo_audio_context");
    }

@@ -122,10 +122,6 @@ function startRemotePlay() {
             // canvas.style.display === "none";
             // video.style.display === "block";
             canvas.remove();
-            var els = document.getElementsByClassName("webremoteplay_hostonly");
-            Array.prototype.forEach.call(els, function(el) {
-                el.remove();
-            });
 
             host_conn = me.connect(hostID, { reliable: true });
             host_conn.on('error', function(err) {
@@ -159,10 +155,32 @@ function startRemotePlay() {
         me.on('call', function(call) {
             console.log("Got a call...");
             call.on('stream', function(remoteStream) {
-                console.log("Got a stream", video, video.srcObject, remoteStream);
-                // Show stream in some video/canvas element.
-                video.srcObject = remoteStream;
-                console.log("Has a stream", video, video.srcObject, remoteStream);
+                console.log("Got a stream with tracks:", remoteStream.getTracks());
+                video.onclick = function() {
+                    // optional, only useful for debugging audio issues
+                    const viz_canvas = document.querySelector(".webremoteplay_audioviz");
+                    if (viz_canvas) {
+                        const viz = new StreamVisualizer(remoteStream, viz_canvas);
+                        viz.start();
+                    }
+
+                    // Show stream in some video/canvas element.
+                    video.srcObject = new MediaStream(remoteStream);
+
+                    video.onloadedmetadata = function() {
+                        video.volume = 1;
+                        video.muted = false;
+                        video.play();
+                    };
+
+                    var els = document.getElementsByClassName("webremoteplay_hostonly");
+                    Array.prototype.forEach.call(els, function(el) {
+                        el.remove();
+                    });
+
+                    video.onclick = null;
+                };
+                // video.muted = false; // Not working? I don't hear anything :(
             });
             // Respond, but provide no stream.
             call.answer();
@@ -233,7 +251,6 @@ function startRemotePlay() {
             // canvas.style.display === "block";
             // video.style.display === "none";
             video.remove();
-            stream = canvas.captureStream();
 
             // window.location.hash = myID;
             if (window.history.replaceState) {
@@ -261,6 +278,41 @@ function startRemotePlay() {
 
             conn.on('open', function() {
                 console.log("Connected:", conn.peer);
+
+                // Wait until the actually need the stream
+                // so that we are more likely to have the game running
+                // including sound. If we do this too early then SDL
+                // or SDL2 hasn't set up its audio stuff yet.
+                if (stream == null) {
+                    const videoStream = canvas.captureStream();
+                    if (pico8_audio_context) {
+                        console.log("Trying to get PICO-8 audio stream...");
+                        const audioStreamDestination = pico8_audio_context.createMediaStreamDestination();
+                        pico8_audio_context.final_audio_node.connect(audioStreamDestination);
+                        stream = new MediaStream(videoStream.getTracks().concat(audioStreamDestination.stream.getTracks()));
+                    }else if (window.SDL) {
+                        console.log("Trying to get SDL audio stream...");
+                        SDL.openAudioContext();
+                        const audioStreamDestination = SDL.audioContext.createMediaStreamDestination();
+                        SDL.destination = audioStreamDestination;
+                        stream = new MediaStream(videoStream.getTracks().concat(audioStreamDestination.stream.getTracks()));
+                    }else if (Module && Module.SDL2) {
+                        console.log("Trying to get SDL2 audio stream...");
+                        const audioStreamDestination = Module.SDL2.audioContext.createMediaStreamDestination();
+                        Module.SDL2.destination = audioStreamDestination;
+                        stream = new MediaStream(videoStream.getTracks().concat(audioStreamDestination.stream.getTracks()));
+                    }else{
+                        console.log("Only found video stream.");
+                        stream = videoStream;
+                    }
+
+                    // optional, only useful for debugging audio issues
+                    const viz_canvas = document.querySelector(".webremoteplay_audioviz");
+                    if (viz_canvas) {
+                        const viz = new StreamVisualizer(stream, viz_canvas);
+                        viz.start();
+                    }
+                }
 
                 // Send them our video stream
                 console.log("Calling", conn.peer, "with stream");

@@ -574,7 +574,11 @@ canvas{
 
 <div style="max-width:800px; max-height:800px; margin:auto"> <!-- optional div to limit size -->
 
-<video playsinline autoplay muted style="display:flex; width:100%; max-width:100vw; height:100vw; max-height:100vh; margin:auto; image-rendering: pixelated;" class="webremoteplay_video" oncontextmenu="event.preventDefault()" onmousedown="window.focus()"></video>
+<video playsinline autoplay style="display:flex; width:100%; max-width:100vw; height:100vw; max-height:100vh; margin:auto; image-rendering: pixelated;" class="webremoteplay_video" oncontextmenu="event.preventDefault()" onmousedown="window.focus(); self.muted=false;"></video>
+<!-- for debugging audio
+<canvas class="webremoteplay_audioviz"></canvas>
+<script src="https://webrtc.github.io/samples/src/js/third_party/streamvisualizer.js"></script>
+ -->
 
 <div id="p8_frame" class="webremoteplay_hostonly" style="display:flex; width:100%; max-width:100vw; height:100vw; max-height:100vh; margin:auto;">
 
