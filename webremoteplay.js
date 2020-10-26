@@ -285,7 +285,7 @@ function startRemotePlay() {
                 // or SDL2 hasn't set up its audio stuff yet.
                 if (stream == null) {
                     const videoStream = canvas.captureStream();
-                    if (pico8_audio_context) {
+                    if (window.pico8_audio_context) {
                         console.log("Trying to get PICO-8 audio stream...");
                         const audioStreamDestination = pico8_audio_context.createMediaStreamDestination();
                         pico8_audio_context.final_audio_node.connect(audioStreamDestination);
@@ -295,11 +295,12 @@ function startRemotePlay() {
                         SDL.openAudioContext();
                         const audioStreamDestination = SDL.audioContext.createMediaStreamDestination();
                         SDL.destination = audioStreamDestination;
+                        // TODO: Connect an audio node to audioStreamDestination?
                         stream = new MediaStream(videoStream.getTracks().concat(audioStreamDestination.stream.getTracks()));
                     }else if (Module && Module.SDL2) {
                         console.log("Trying to get SDL2 audio stream...");
                         const audioStreamDestination = Module.SDL2.audioContext.createMediaStreamDestination();
-                        Module.SDL2.destination = audioStreamDestination;
+                        Module.SDL2.audio.scriptProcessorNode.connect(audioStreamDestination);
                         stream = new MediaStream(videoStream.getTracks().concat(audioStreamDestination.stream.getTracks()));
                     }else{
                         console.log("Only found video stream.");
