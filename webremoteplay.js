@@ -74,13 +74,26 @@ function startRemotePlay() {
                 break;
             case 'mousedown':
             case 'mouseup':
+            case 'click':
+            case 'dblclick':
             case 'mousemove':
                 // console.log(event);
                 host_conn.send({
                     eventType: eventType,
-                    button: event.button,
                     x: event.x,
-                    y: event.y
+                    y: event.y,
+                    screenX: event.screenX,
+                    screenY: event.screenY,
+                    clientX: event.clientX,
+                    clientY: event.clientY,
+                    ctrlKey: event.ctrlKey,
+                    shiftKey: event.shiftKey,
+                    altKey: event.altKey,
+                    metaKey: event.metaKey,
+                    button: event.button,
+                    buttons: event.buttons
+                    // relatedTarget
+                    // region
                 });
                 break;
         }
@@ -145,8 +158,9 @@ function startRemotePlay() {
                 document.addEventListener('keyup', sendEventToHost);
                 document.addEventListener('mousedown', sendEventToHost);
                 document.addEventListener('mouseup', sendEventToHost);
-                // TODO: mousemove events don't seem to dispatch properly?
-                // document.addEventListener('mousemove', sendEventToHost);
+                document.addEventListener('click', sendEventToHost);
+                document.addEventListener('dblclick', sendEventToHost);
+                document.addEventListener('mousemove', sendEventToHost);
             });
             host_conn.on('data', function(data) {
                 // Ignored
@@ -366,8 +380,27 @@ function startRemotePlay() {
                         break;
                     case 'mousedown':
                     case 'mouseup':
+                    case 'click':
+                    case 'dblclick':
                     case 'mousemove':
-                        event = new MouseEvent(data.eventType, {'button':data.button, 'x':data.x, 'y':data.y, 'bubbles':true});
+                        event = new MouseEvent(data.eventType, {
+                            button: data.button,
+                            x: data.x,
+                            y: data.y,
+                            screenX: data.screenX,
+                            screenY: data.screenY,
+                            clientX: data.clientX,
+                            clientY: data.clientY,
+                            ctrlKey: data.ctrlKey,
+                            shiftKey: data.shiftKey,
+                            altKey: data.altKey,
+                            metaKey: data.metaKey,
+                            button: data.button,
+                            buttons: data.buttons,
+                            // relatedTarget
+                            // region
+                            bubbles: true
+                        });
                         break;
                     default:
                         console.log("WARNING: Unrecognized peer event:", data);
