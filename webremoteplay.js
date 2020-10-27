@@ -54,9 +54,20 @@ function startRemotePlay() {
         var eventType = event.type;
         switch (eventType) {
             case 'keydown':
+            case 'keypress':
             case 'keyup':
                 host_conn.send({
                     eventType: eventType,
+                    key: event.key,
+                    code: event.code,
+                    location: event.location,
+                    ctrlKey: event.ctrlKey,
+                    shiftKey: event.shiftKey,
+                    altKey: event.altKey,
+                    metaKey: event.metaKey,
+                    repeat: event.repeat,
+                    isComposing: event.isComposing,
+                    charCode: event.charCode,
                     keyCode: event.keyCode,
                     which: event.which
                 });
@@ -130,6 +141,7 @@ function startRemotePlay() {
             host_conn.on('open', function(){
                 console.log("Connected to HOST", host_conn.peer);
                 document.addEventListener('keydown', sendEventToHost);
+                document.addEventListener('keypress', sendEventToHost);
                 document.addEventListener('keyup', sendEventToHost);
                 document.addEventListener('mousedown', sendEventToHost);
                 document.addEventListener('mouseup', sendEventToHost);
@@ -334,8 +346,23 @@ function startRemotePlay() {
                 var event = null;
                 switch(data.eventType) {
                     case 'keydown':
+                    case 'keypress':
                     case 'keyup':
-                        event = new KeyboardEvent(data.eventType, {'keyCode':data.keyCode, 'which':data.which, 'bubbles':true});
+                        event = new KeyboardEvent(data.eventType, {
+                            key: data.key,
+                            code: data.code,
+                            location: data.location,
+                            ctrlKey: data.ctrlKey,
+                            shiftKey: data.shiftKey,
+                            altKey: data.altKey,
+                            metaKey: data.metaKey,
+                            repeat: data.repeat,
+                            isComposing: data.isComposing,
+                            charCode: data.charCode,
+                            keyCode: data.keyCode,
+                            which: data.which,
+                            bubbles: true
+                        });
                         break;
                     case 'mousedown':
                     case 'mouseup':
