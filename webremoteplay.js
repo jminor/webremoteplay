@@ -182,6 +182,8 @@ function startRemotePlay() {
             console.log("Got a call...");
             call.on('stream', function(remoteStream) {
                 console.log("Got a stream with tracks:", remoteStream.getTracks());
+                // We won't get audio unless we do this next part inside a user-initiated
+                // event. That is the browser's defense against annoying auto-play ads.
                 video.onclick = function() {
                     // optional, only useful for debugging audio issues
                     const viz_canvas = document.querySelector(".webremoteplay_audioviz");
@@ -191,22 +193,25 @@ function startRemotePlay() {
                     }
 
                     // Show stream in some video/canvas element.
-                    video.srcObject = new MediaStream(remoteStream);
+                    video.srcObject = remoteStream;
 
+                    // When the media is actually ready...
                     video.onloadedmetadata = function() {
+                        // Make sure it is playing (both audio and video)
                         video.volume = 1;
                         video.muted = false;
                         video.play();
                     };
 
+                    // Now we can remove any banner/text/whatever that is in front of the video.
                     var els = document.getElementsByClassName("webremoteplay_hostonly");
                     Array.prototype.forEach.call(els, function(el) {
                         el.remove();
                     });
 
+                    // onlick has done its job, remove it.
                     video.onclick = null;
                 };
-                // video.muted = false; // Not working? I don't hear anything :(
             });
             // Respond, but provide no stream.
             call.answer();
